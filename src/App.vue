@@ -5,33 +5,32 @@
 </template>
 
 <script>
-import { connectToBlockchain } from '@/lib/polkadotProvider'
-import { queryLabsByCountryCity, queryLabsById } from '@/lib/polkadotProvider/query/labs'
 
 export default {
   name: 'App',
   data: () => ({
-    mnemonic: '',
-    pair: null,
-    api: null,
-    balanceFree: null,
-    nonce: 0,
+    ethereum: ''
   }),
   async mounted() {
-    await this.connectToBlockchain()
-    let labsByCountryCity = await this.getLabsByCountryCity('Indonesia', 'Jakarta')
-    let lab = await this.getLabsById(labsByCountryCity[0])
-    console.log(lab.name)
+    const { ethereum } = window
+    this.ethereum = ethereum
+    if(this.isMetaMaskInstalled()){
+      this.connectToMetaMask()
+    }
+    else{
+      alert("Install MetaMask")
+    }
   },
-  methods: {
-    async connectToBlockchain() {
-      this.api = await connectToBlockchain()
+  method:{
+    isMetaMaskInstalled(){
+      return Boolean(this.ethereum && this.ethereum.isMetaMask);
     },
-    async getLabsByCountryCity(country, city){
-      return await queryLabsByCountryCity(this.api, country, city)
-    },
-    async getLabsById(labId){
-      return await queryLabsById(this.api, labId)
+    async connectToMetaMask(){
+      try {
+        await this.ethereum.request({ method: 'eth_requestAccounts' });
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 }
