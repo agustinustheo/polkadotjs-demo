@@ -5,34 +5,83 @@
 </template>
 
 <script>
+import { registerLab } from './lib/polkadotProvider/command/labs'
+import { createService } from './lib/polkadotProvider/command/services'
+import { queryLabsByCountryCity } from './lib/polkadotProvider/query/labs'
+import { queryBalance } from './lib/polkadotProvider/query/balance'
+import { queryServicesByCountryCity } from './lib/polkadotProvider/query/services'
+import { Keyring } from '@polkadot/keyring'
+import { ApiPromise, WsProvider } from '@polkadot/api'
+import types from './types.json'
 
 export default {
   name: 'App',
   data: () => ({
-    ethereum: ''
+    mnemonic: '',
+    pair: null,
+    api: null,
   }),
   async mounted() {
-    const { ethereum } = window
-    this.ethereum = ethereum
-    if(this.isMetaMaskInstalled()){
-      this.connectToMetaMask()
-    }
-    else{
-      alert("Install MetaMask")
+    this.generateAccount()
+    await this.connectToBlockchain()
+    await this.createLab()
+    await this.createService()
+    this.getBalance()
+  },
+  methods:{
+    generateAccount() {
+      // type: ed25519, ssFormat: 42 (all defaults)
+      const keyring = new Keyring()
+      this.mnemonic = 'soccer parade lottery sock aunt girl cool smooth make teach sell consider'
+
+      console.log(this.mnemonic)
+      this.pair = keyring.addFromUri(this.mnemonic, 'ed25519')
+
+      console.log(this.pair.address)
+    },
+    async connectToBlockchain() {
+      const wsProvider = new WsProvider('wss://debio.theapps.dev/node')
+      this.api = await ApiPromise.create({
+        provider: wsProvider,
+        types: types
+      })
+    },
+    async createLab(){
+      // Insert chain properties
+      const data = await registerLab(this.api, this.pair, {
+        "name": "Singapore Hololive Lab Kawaii",
+        "email": "email@mail.com",
+        "country": "Singapore",
+        "city": "Singapore",
+        "address": "you will never know"
+      });
+      console.log(data)
+      
+      // Retrieve chain properties
+      const labData = await queryLabsByCountryCity(this.api, "Singapore", "Singapore")
+      console.log(labData)
+    },
+    async createService(){
+      // Insert chain properties
+      for(let i = 1; i <= 10; i++){
+        const data = await createService(this.api, this.pair, {
+          "name": "Singapore Hololive Genetics 2",
+          "price": "2",
+          "category": "genetic",
+          "description": "Singapore Hololive Genetics 2 Description"
+        });
+        console.log(data)
+      }
+      
+      // Retrieve chain properties
+      const serviceData = await queryServicesByCountryCity(this.api, "Singapore", "Singapore")
+      console.log(serviceData)
+    },
+    async getBalance() {
+      const data = await queryBalance(this.api, this.pair.address)
+      console.log('Balance: ' + data)
     }
   },
-  method:{
-    isMetaMaskInstalled(){
-      return Boolean(this.ethereum && this.ethereum.isMetaMask);
-    },
-    async connectToMetaMask(){
-      try {
-        await this.ethereum.request({ method: 'eth_requestAccounts' });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }
 }
 </script>
 
