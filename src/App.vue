@@ -7,9 +7,8 @@
 <script>
 import { registerLab } from './lib/polkadotProvider/command/labs'
 import { createService } from './lib/polkadotProvider/command/services'
-import { queryLabsByCountryCity } from './lib/polkadotProvider/query/labs'
+import { queryLabsByCountryRegionCity } from './lib/polkadotProvider/query/labs'
 import { queryBalance } from './lib/polkadotProvider/query/balance'
-import { queryServicesByCountryCity } from './lib/polkadotProvider/query/services'
 import { Keyring } from '@polkadot/keyring'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import types from './types.json'
@@ -51,31 +50,31 @@ export default {
       const data = await registerLab(this.api, this.pair, {
         "name": "Singapore Hololive Lab Kawaii",
         "email": "email@mail.com",
-        "country": "Singapore",
-        "city": "Singapore",
+        "country": "SG-SG",
+        "city": "SG",
         "address": "you will never know"
       });
       console.log(data)
       
       // Retrieve chain properties
-      const labData = await queryLabsByCountryCity(this.api, "Singapore", "Singapore")
+      const labData = await queryLabsByCountryRegionCity(this.api, "SG", "SIN")
       console.log(labData)
     },
     async createService(){
       // Insert chain properties
       for(let i = 1; i <= 10; i++){
-        const data = await createService(this.api, this.pair, {
+        const data2 = await createService(this.api, this.pair, {
           "name": "Singapore Hololive Genetics 2",
           "price": "2",
           "category": "genetic",
           "description": "Singapore Hololive Genetics 2 Description"
         });
-        console.log(data)
+        console.log(data2)
       }
       
       // Retrieve chain properties
-      const serviceData = await queryServicesByCountryCity(this.api, "Singapore", "Singapore")
-      console.log(serviceData)
+      // const serviceData = await queryServicesByCountryRegionCity(this.api, "SG", "SIN")
+      // console.log(serviceData)
     },
     async getBalance() {
       const data = await queryBalance(this.api, this.pair.address)
