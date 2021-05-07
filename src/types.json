@@ -78,6 +78,7 @@
     "owner_id": "AccountId",
     "status": "DnaSampleStatus"
   },
+  "DnaSampleTrackingId": "Text",
   "DnaSampleOf": "DnaSample",
   "DnaTestResult": {
     "tracking_id": "Text",
